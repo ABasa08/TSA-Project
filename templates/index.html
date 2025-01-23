@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Define character encoding and page title -->
+    <meta charset="UTF-8">
+    <title>Sustainable Agriculture Optimization Platform</title>
+    
+    <!-- Include Bootstrap CSS for styling and responsiveness -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    
+    <!-- Link to custom CSS for additional styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    
+    <style>
+        /* Additional custom styles */
+
+        /* Style for feature selection sections with top and bottom margins */
+        .feature-section {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        /* Style for the output section with top margin */
+        .output-section {
+            margin-top: 30px;
+        }
+        
+        /* Ensure visualization images are responsive */
+        .visualization {
+            max-width: 100%;
+            height: auto;
+        }
+        
+        /* Style preformatted text blocks */
+        pre {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        
+        /* Style for helper text with muted color */
+        .text-muted {
+            font-weight: normal;
+            font-size: 0.9rem;
+        }
+        
+        /* Style for the loading spinner container */
+        #loading-spinner {
+            display: none; /* Hidden by default */
+            margin-top: 10px;
+        }
+        
+        /* Define size for the spinner image */
+        #loading-spinner img {
+            width: 30px;
+            height: 30px; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Main heading centered with top and bottom margins -->
+        <h1 class="mt-4 mb-4 text-center">Sustainable Agriculture Optimization Platform</h1>
+        
+        <!-- Display error message if present -->
+        {% if error %}
+            <div class="alert alert-danger" role="alert" aria-live="assertive">
+                {{ error }}
+            </div>
+        {% endif %}
+        
+        <!-- Form for selecting and executing features -->
+        <form method="POST" aria-labelledby="form-title">
+            <div class="feature-section">
+                <h3 id="form-title">Select a Feature:</h3>
+                <div class="form-group">
+                    <label for="feature">Choose a feature to execute:</label>
+                    <!-- Dropdown to select a feature; triggers toggleFeatures() on change -->
+                    <select class="form-control" id="feature" name="feature" onchange="toggleFeatures()" required aria-required="true">
+                        <option value="" selected disabled>Select a feature</option>
+                        <option value="1">Advanced Crop Efficiency Planner</option>
+                        <option value="2">Enhanced Water Management Tool</option>
+                        <option value="3">Enhanced Localized Water Data</option>
+                        <option value="4">Eco-Tips Section</option>
+                        <option value="5">Exit</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Crop Efficiency Planner Section: initially hidden -->
+            <div id="crop_efficiency_form" class="feature-section" style="display: none;" aria-hidden="true">
+                <h4>Advanced Crop Efficiency Planner</h4>
+                <div class="form-group">
+                    <label for="crop_type">
+                        Enter crop type (e.g., wheat, corn, soy, rice) 
+                        <span class="text-muted">[What crop are you planning?]</span>:
+                    </label>
+                    <!-- Input for crop type -->
+                    <input type="text" class="form-control" id="crop_type" name="crop_type" aria-required="true" aria-label="Crop Type">
+                </div>
+                <div class="form-group">
+                    <label for="soil_quality">
+                        Enter soil quality (1-100) 
+                        <span class="text-muted">[Higher = better soil]</span>:
+                    </label>
+                    <!-- Input for soil quality with min and max values -->
+                    <input type="number" class="form-control" id="soil_quality" name="soil_quality" min="1" max="100" aria-required="true" aria-label="Soil Quality">
+                </div>
+                <div class="form-group">
+                    <label for="farm_size">
+                        Enter farm size (in acres) 
+                        <span class="text-muted">[Total area for the crop]</span>:
+                    </label>
+                    <!-- Input for farm size with step increment -->
+                    <input type="number" step="0.01" class="form-control" id="farm_size" name="farm_size" aria-required="true" aria-label="Farm Size">
+                </div>
+                <div class="form-group">
+                    <label for="fertilizer_level">
+                        Enter additional fertilizer amount (kg/acre) 
+                        <span class="text-muted">[Extra fertilizer to boost yield]</span>:
+                    </label>
+                    <!-- Input for fertilizer level with step increment and minimum value -->
+                    <input type="number" step="0.01" class="form-control" id="fertilizer_level" name="fertilizer_level" min="0" aria-required="true" aria-label="Fertilizer Level">
+                </div>
+                <div class="form-group">
+                    <label for="irrigation_eff">
+                        Enter irrigation efficiency (0.5-1.0) 
+                        <span class="text-muted">[0.5 = low efficiency, 1.0 = high efficiency]</span>:
+                    </label>
+                    <!-- Input for irrigation efficiency with step increment and range -->
+                    <input type="number" step="0.01" class="form-control" id="irrigation_eff" name="irrigation_eff" min="0.5" max="1.0" aria-required="true" aria-label="Irrigation Efficiency">
+                </div>
+            </div>
+            
+            <!-- Water Management Tool Section: initially hidden -->
+            <div id="water_management_form" class="feature-section" style="display: none;" aria-hidden="true">
+                <h4>Enhanced Water Management Tool</h4>
+                <div class="form-group">
+                    <label for="irrigation_method">
+                        Enter irrigation method (e.g., drip, sprinkler) 
+                        <span class="text-muted">[Determines water distribution efficiency]</span>:
+                    </label>
+                    <!-- Input for irrigation method -->
+                    <input type="text" class="form-control" id="irrigation_method" name="irrigation_method" aria-required="true" aria-label="Irrigation Method">
+                </div>
+                <div class="form-group">
+                    <label for="soil_type">
+                        Enter soil type (e.g., clay, loam, sandy) 
+                        <span class="text-muted">[Influences water infiltration]</span>:
+                    </label>
+                    <!-- Input for soil type -->
+                    <input type="text" class="form-control" id="soil_type" name="soil_type" aria-required="true" aria-label="Soil Type">
+                </div>
+                <div class="form-group">
+                    <label for="region">
+                        Enter region (north, south, east, west) 
+                        <span class="text-muted">[Select your local region]</span>:
+                    </label>
+                    <!-- Input for region -->
+                    <input type="text" class="form-control" id="region" name="region" aria-required="true" aria-label="Region">
+                </div>
+            </div>
+            
+            <!-- Localized Water Data Section: initially hidden -->
+            <div id="localized_water_data_form" class="feature-section" style="display: none;" aria-hidden="true">
+                <h4>Enhanced Localized Water Data</h4>
+                <div class="form-group">
+                    <label for="localized_region">
+                        Select Region 
+                        <span class="text-muted">[Select your region for local data]</span>:
+                    </label>
+                    <!-- Dropdown to select localized region -->
+                    <select class="form-control" id="localized_region" name="localized_region" aria-required="true" aria-label="Localized Region">
+                        <option value="" selected disabled>Select a region</option>
+                        <option value="north">North</option>
+                        <option value="south">South</option>
+                        <option value="east">East</option>
+                        <option value="west">West</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Eco-Tips Section: initially hidden -->
+            <div id="eco_tips_form" class="feature-section" style="display: none;" aria-hidden="true">
+                <h4>Eco-Tips Section</h4>
+                <!-- Informational text indicating no inputs are required -->
+                <p>No inputs required. Click "Execute" to view eco-tips.</p>
+            </div>
+            
+            <!-- Execute Button to submit the form -->
+            <button type="submit" class="btn btn-primary" id="execute-button" aria-live="polite">Execute</button>
+            
+            <!-- Loading Spinner displayed during form submission -->
+            <div id="loading-spinner" aria-hidden="true">
+                <img src="{{ url_for('static', filename='images/spinner.gif') }}" alt="Loading..." /> <!-- Spinner image -->
+            </div>
+        </form>
+        
+        <!-- Output Section to display results -->
+        <div class="output-section">
+            {% if output %}
+                <h3>Output:</h3>
+                <!-- Rendered output from the server, marked safe to allow HTML -->
+                <div class="rich-output">{{ output | safe }}</div>
+            {% endif %}
+            
+            {% if visualization_url %}
+                <h3>Visualization:</h3>
+                <!-- Display the generated visualization image -->
+                <img src="{{ visualization_url }}" alt="Visualization" class="visualization">
+            {% endif %}
+        </div>
+        
+        <!-- Automatic Download Script for visualization images -->
+        {% if visualization_url %}
+            <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    // Create a temporary anchor element
+                    var link = document.createElement('a');
+                    link.href = "{{ visualization_url }}"; // Set the link's href to the visualization URL
+                    link.download = "{{ visualization_url.rsplit('/', 1)[-1] }}"; // Set the download attribute with the image filename
+                    document.body.appendChild(link); // Append the link to the body
+                    link.click(); // Programmatically click the link to trigger download
+                    document.body.removeChild(link); // Remove the link from the body
+                });
+            </script>
+        {% endif %}
+        
+        <!-- Include jQuery for DOM manipulation and event handling -->
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        
+        <!-- Include custom JavaScript file for additional functionality -->
+        <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    </body>
+</html>
